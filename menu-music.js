@@ -13,7 +13,7 @@ window.MenuMusic = (() => {
   const VOLUME = 0.6;
 
   // How long the fade-out takes when the game starts, in milliseconds.
-  const FADE_MS = 1200;
+  const FADE_MS = 500;
   // ────────────────────────────────────────────────────────────────────────────
 
   let el = null;
