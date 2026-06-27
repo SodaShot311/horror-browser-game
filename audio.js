@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /*window.AudioEngine = (() => {
+=======
+ /*window.AudioEngine = (() => {
+>>>>>>> 3f7b21f31f8e572bcde61045fec814c0329a0612
   let ctx;
   let muted = false;
   let current = null;
@@ -105,4 +109,8 @@
   return { play, playScene, stop, fadeOut, playEndingTone, toggleMute, applySettings, isMuted: () => muted };
 })();
 
+<<<<<<< HEAD
 window.AudioManager = window.AudioEngine;*/
+=======
+window.AudioManager = window.AudioEngine;/*
+>>>>>>> 3f7b21f31f8e572bcde61045fec814c0329a0612
