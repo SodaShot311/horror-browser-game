@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Long Walk Home</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="fog fog-a"></div>
+  <div class="fog fog-b"></div>
+  <div class="crt"></div>
+
+  <main class="shell" id="app">
+    <section class="title-screen" id="titleScreen">
+      <p class="kicker">A psychological horror text adventure</p>
+      <h1>The Long Walk Home</h1>
+      <p class="subtitle">Your shift ended twelve hours after it started. The fog has swallowed the road home.</p>
+      <div class="title-actions">
+        <button class="primary" id="newGameButton">New Walk</button>
+        <button id="continueButton">Continue</button>
+        <button id="resetButton">Reset Save</button>
+      </div>
+      <div class="settings-row">
+        <label><input type="checkbox" id="reducedMotionToggle"> Reduce motion</label>
+        <label><input type="checkbox" id="skipTypeToggle"> Skip typewriter</label>
+        <button id="fullscreenButton" aria-label="Toggle fullscreen">Fullscreen</button>
+      </div>
+    </section>
+
+    <section class="game-screen hidden" id="gameScreen" aria-live="polite">
+      <header class="topbar">
+        <button id="menuButton" aria-label="Return to title">Menu</button>
+        <div>
+          <p class="chapter" id="chapterLabel">Chapter 1</p>
+          <h2 id="sceneTitle">Leaving Work</h2>
+        </div>
+        <button id="muteButton" aria-label="Toggle sound">Sound On</button>
+      </header>
+
+      <figure class="scene-visual" id="sceneVisual">
+        <img id="sceneImage" src="" alt="">
+      </figure>
+
+      <article class="story-panel">
+        <div class="story-text" id="storyText"></div>
+      </article>
+
+      <section class="status-panel">
+        <div>
+          <span>Fear</span>
+          <strong id="fearMeter">-----</strong>
+        </div>
+        <div>
+          <span>Battery</span>
+          <strong id="batteryMeter">15%</strong>
+        </div>
+        <div>
+          <span>Inventory</span>
+          <strong id="inventoryList">Empty</strong>
+        </div>
+      </section>
+
+      <nav class="choices" id="choices"></nav>
+
+      <footer class="footerbar">
+        <button id="skipButton">Skip Text</button>
+        <button id="achievementsButton">Endings</button>
+      </footer>
+    </section>
+
+    <dialog id="endingDialog">
+      <h3>Unlocked Endings</h3>
+      <ul id="endingList"></ul>
+      <button id="closeEndingsButton">Close</button>
+    </dialog>
+  </main>
+
+  <script src="scenes.js"></script>
+  <script src="visuals.js"></script>
+  <script src="save.js"></script>
+  <script src="audio.js"></script>
+  <script src="ui.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
