@@ -207,4 +207,8 @@ window.AudioEngine = (() => {
   };
 })();
 
+<<<<<<< HEAD
 window.AudioManager = window.AudioEngine;
+=======
+window.AudioManager = window.AudioEngine;
+>>>>>>> 19508081835e1d64fc7d6ff9cb0a84f938381d52
