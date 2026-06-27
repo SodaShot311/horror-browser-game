@@ -389,6 +389,22 @@ window.SCENES = {
     chapter: "Ending",
     title: "Good Ending: The Road Ends",
     ending: "Good Ending",
+    cinematicText: [
+      "The fog finally lifted.",
+      "Morning light returned.",
+      "The road remembered where it was supposed to end.",
+      "Some things were never explained.",
+      "Some doors should never have been opened.",
+      "But you survived."
+    ],
+    credits: [
+      "THE LONG WALK HOME",
+      "Created by SodaShot",
+      "Programming",
+      "Story",
+      "Art and Sound",
+      "Thank you for playing."
+    ],
     text: [
       "The worker ID, the newspaper, the charm, and the face beneath the streetlight settle into one clean memory.",
       "You remember the truck. You remember the rain. You remember standing up afterward because home was close and you were so tired.",
@@ -405,6 +421,22 @@ window.SCENES = {
     chapter: "Ending",
     title: "Bad Ending: The Long Walk",
     ending: "Bad Ending",
+    cinematicText: [
+      "The fog did not lift.",
+      "The street folded back on itself.",
+      "Some things were never explained.",
+      "Some doors should never have been opened.",
+      "Your apartment stayed one block away.",
+      "The long walk began again."
+    ],
+    credits: [
+      "THE LONG WALK HOME",
+      "Created by SodaShot",
+      "Programming",
+      "Story",
+      "Art and Sound",
+      "Thank you for playing."
+    ],
     text: [
       "You reach your apartment, or the park, or the same intersection again. It no longer matters which.",
       "The fog opens behind you. Something wearing a work uniform reaches out with your hands.",

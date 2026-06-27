@@ -10,6 +10,7 @@
   <div class="fog fog-a"></div>
   <div class="fog fog-b"></div>
   <div class="crt"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <main class="shell" id="app">
     <section class="title-screen" id="titleScreen">
@@ -19,6 +20,7 @@
       <div class="title-actions">
         <button class="primary" id="newGameButton">New Walk</button>
         <button id="continueButton">Continue</button>
+        <button id="slotsButton">Save Slots</button>
         <button id="resetButton">Reset Save</button>
       </div>
       <div class="settings-row">
@@ -29,44 +31,59 @@
     </section>
 
     <section class="game-screen hidden" id="gameScreen" aria-live="polite">
-      <header class="topbar">
+      <aside class="menu-rail">
+        <p class="kicker">The Long Walk Home</p>
         <button id="menuButton" aria-label="Return to title">Menu</button>
-        <div>
+        <button id="manualSaveButton">Save</button>
+        <button id="quickSaveButton">Quick Save</button>
+        <button id="quickLoadButton">Quick Load</button>
+        <button id="gameSlotsButton">Slots</button>
+        <button id="exportSaveButton">Export</button>
+        <label class="import-control">
+          Import
+          <input type="file" id="importSaveInput" accept="application/json,.json">
+        </label>
+      </aside>
+
+      <section class="media-column">
+        <header class="scene-heading">
           <p class="chapter" id="chapterLabel">Chapter 1</p>
           <h2 id="sceneTitle">Leaving Work</h2>
-        </div>
-        <button id="muteButton" aria-label="Toggle sound">Sound On</button>
-      </header>
-
-      <figure class="scene-visual" id="sceneVisual">
-        <img id="sceneImage" src="" alt="">
-      </figure>
-
-      <article class="story-panel">
-        <div class="story-text" id="storyText"></div>
-      </article>
-
-      <section class="status-panel">
-        <div>
-          <span>Fear</span>
-          <strong id="fearMeter">-----</strong>
-        </div>
-        <div>
-          <span>Battery</span>
-          <strong id="batteryMeter">15%</strong>
-        </div>
-        <div>
-          <span>Inventory</span>
-          <strong id="inventoryList">Empty</strong>
-        </div>
+        </header>
+        <figure class="scene-visual" id="sceneVisual"></figure>
+        <nav class="thumbnail-strip" id="thumbnailStrip" aria-label="Nearby locations"></nav>
       </section>
 
-      <nav class="choices" id="choices"></nav>
+      <section class="story-column">
+        <div class="top-actions">
+          <button id="muteButton" aria-label="Toggle sound">Sound On</button>
+          <button id="skipButton">Skip Text</button>
+          <button id="achievementsButton">Endings</button>
+        </div>
+        <article class="story-panel">
+          <div class="story-text" id="storyText"></div>
+        </article>
+        <section class="status-panel">
+          <div>
+            <span>Fear</span>
+            <strong id="fearMeter">-----</strong>
+          </div>
+          <div>
+            <span>Battery</span>
+            <strong id="batteryMeter">15%</strong>
+          </div>
+          <div>
+            <span>Inventory</span>
+            <strong id="inventoryList">Empty</strong>
+          </div>
+        </section>
+        <nav class="choices" id="choices"></nav>
+      </section>
+    </section>
 
-      <footer class="footerbar">
-        <button id="skipButton">Skip Text</button>
-        <button id="achievementsButton">Endings</button>
-      </footer>
+    <section class="ending-sequence hidden" id="endingSequence" aria-live="polite" aria-label="Ending sequence">
+      <div class="ending-line" id="endingLine"></div>
+      <div class="credits-roll hidden" id="creditsRoll"></div>
     </section>
 
     <dialog id="endingDialog">
@@ -74,10 +91,18 @@
       <ul id="endingList"></ul>
       <button id="closeEndingsButton">Close</button>
     </dialog>
+
+    <dialog id="saveDialog">
+      <h3>Save Slots</h3>
+      <div class="save-list" id="saveList"></div>
+      <button id="closeSaveDialogButton">Close</button>
+    </dialog>
   </main>
 
   <script src="scenes.js"></script>
-  <script src="visuals.js"></script>
+  <script src="config/assets.js"></script>
+  <script src="config/audio.js"></script>
+  <script src="config/theme.js"></script>
   <script src="save.js"></script>
   <script src="audio.js"></script>
   <script src="ui.js"></script>
