@@ -288,9 +288,9 @@ Current default assets:
 
 ```js
 leavingWork: "assets/visuals/loading-bay.gif"
-friendCall: "assets/visuals/phone-call.gif"
-streetlights: "assets/visuals/streetlights.gif"
-alley: "assets/visuals/alley.gif"
+friendCall: "assets/visuals/phone-call.gif"  
+streetlights: "assets/visuals/streetlights.gif" 
+alley: "assets/visuals/alley.gif" 
 theFog: "assets/visuals/fog-road.gif"
 convenienceStore: "assets/visuals/convenience-store.gif"
 park: "assets/visuals/park-path.gif"
