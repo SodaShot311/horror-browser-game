@@ -52,8 +52,8 @@ window.AssetConfig = {
     stairs:            { image: "assets/images/the stairs.png",         ambience: "stairs",                   overlays: ["crt"] },
     elevator:          { image: "assets/images/elevator.png",           ambience: "elevator",                        overlays: ["crt"] },
     hide:              { image: "assets/images/apartment lobby.png",    ambience: "lobby",                    overlays: ["crt"] },
-    peephole:          { image: "assets/images/peephole.png",           ambience: "rain",                   overlays: ["crt"] },
-    endingCheck:       { image: "assets/images/peephole.png",           ambience: "rain",                   overlays: ["crt"] },
+    peephole:          { image: "assets/images/peephole.png",           ambience: "stairs",                   overlays: ["crt"] },
+    endingCheck:       { image: "assets/images/peephole.png",           ambience: "endingCheck",                   overlays: ["crt"] },
     goodEnding:        { image: "assets/images/good end.png",           music: "rain",                         overlays: ["fog"] },
     badEnding:         { image: "assets/images/bad end.png",            ambience: "rain",  music: "ending",  overlays: ["fog", "crt"] },
 
