@@ -29,7 +29,7 @@ window.AssetConfig = {
   },
   scenes: {
     leavingWork:       { image: "assets/images/docking bay.png",        ambience: "rain",                        overlays: ["fog", "crt"] },
-    friendCall:        { image: "assets/images/phone call.png",         ambience: "rain",                        overlays: ["crt"] },
+    friendCall:        { image: "assets/images/phone call.png",         ambience: "friend-call",                        overlays: ["crt"] },
     friendCallAgain:   { image: "assets/images/phone call.png",         ambience: "rain",                    overlays: ["crt"] },
     taxiCancelled:     { image: "assets/images/docking bay.png",        ambience: "rain",                        overlays: ["fog", "crt"] },
     streetlights:      { image: "assets/images/street lights.png",      ambience: "rain",                    overlays: ["fog", "rain", "crt"] },

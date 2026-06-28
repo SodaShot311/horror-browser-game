@@ -45,7 +45,7 @@ window.AudioConfig = {
     // footsteps:  "assets/audio/ambience/footsteps.mp3",
     // ending:     "assets/audio/music/ending.mp3",
     //leavingWork:       "assets/audio/ambience/leaving-work.mp3",
-    //friendCall:        "assets/audio/ambience/friend-call.mp3",
+    friendCall:        "assets/audio/ambience/friend-call.mp3",
     //friendCallAgain:   "assets/audio/ambience/friend-call-again.mp3",
     //taxiCancelled:     "assets/audio/ambience/taxi-cancelled.mp3",
     //streetlights:      "assets/audio/ambience/streetlights.mp3",
