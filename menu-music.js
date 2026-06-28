@@ -1,120 +1,120 @@
 // menu-music.js
-// Plays background music on the main menu and stops it when the game starts.
 // Add this AFTER audio.js in index.html:
 //   <script src="audio.js"></script>
-//   <script src="menu-music.js"></script>  ← add this line
+//   <script src="menu-music.js"></script>
+//   <script src="ui.js"></script>
+//   <script src="game.js"></script>
 
 window.MenuMusic = (() => {
   // ── Config ──────────────────────────────────────────────────────────────────
-  // Change this path to your menu music file.
   const MUSIC_SRC = "assets/audio/music/menu.mp3";
-
-  // How loud the menu music is (0.0 – 1.0).
-  const VOLUME = 0.6;
-
-  // How long the fade-out takes when the game starts, in milliseconds.
-  const FADE_MS = 500;
+  const VOLUME    = 0.6;
+  const FADE_MS   = 1200;
   // ────────────────────────────────────────────────────────────────────────────
 
-  let el = null;
+  let el      = null;
   let playing = false;
+  let fadeIv  = null;
 
-  function play() {
-    if (playing || AudioEngine.isMuted()) return;
-
-    if (!el) {
-      el = new Audio(MUSIC_SRC);
-      el.loop = true;
-      el.volume = 0;
-    }
-
-    el.play().catch(err => {
-      // Browser blocked autoplay — will retry on next user interaction.
-      console.warn("[MenuMusic] Playback blocked:", err.message);
-    });
-
-    // Fade in over 800ms so it doesn't slam in
-    fadeVolume(el, 0, VOLUME, 800);
-    playing = true;
-  }
-
-  function stop() {
-    if (!el || !playing) return;
-    playing = false;
-
-    const target = el;
-    fadeVolume(target, target.volume, 0, FADE_MS, () => {
-      target.pause();
-      target.currentTime = 0;
-    });
-  }
-
-  // Simple volume ramp using setInterval
-  function fadeVolume(audio, from, to, durationMs, onDone) {
+  // ── Volume ramp ─────────────────────────────────────────────────────────────
+  function fadeVolume(from, to, durationMs, onDone) {
+    if (fadeIv) clearInterval(fadeIv);
+    if (!el) return;
     const steps  = 30;
     const stepMs = durationMs / steps;
     let   step   = 0;
-    audio.volume = from;
+    el.volume    = Math.min(1, Math.max(0, from));
 
-    const iv = setInterval(() => {
+    fadeIv = setInterval(() => {
       step++;
-      audio.volume = Math.min(1, Math.max(0, from + (to - from) * (step / steps)));
+      el.volume = Math.min(1, Math.max(0, from + (to - from) * (step / steps)));
       if (step >= steps) {
-        clearInterval(iv);
-        audio.volume = to;
+        clearInterval(fadeIv);
+        fadeIv    = null;
+        el.volume = Math.min(1, Math.max(0, to));
         if (onDone) onDone();
       }
     }, stepMs);
   }
 
-  // ── Hook into UI.showTitle and UI.showGame ──────────────────────────────────
-  // We wait for the page to finish loading so UI is already defined,
-  // then wrap the two functions that control screen visibility.
+  // ── Play menu music ──────────────────────────────────────────────────────────
+  function play() {
+    if (playing || AudioEngine.isMuted()) return;
 
-  window.addEventListener("load", () => {
-    if (!window.UI) {
-      console.warn("[MenuMusic] UI not found — make sure menu-music.js loads after ui.js");
-      return;
+    if (!el) {
+      el       = new Audio(MUSIC_SRC);
+      el.loop  = true;
+      el.volume = 0;
     }
 
-    // Wrap showTitle: play menu music whenever the title screen appears
+    el.play().catch(err => {
+      console.warn("[MenuMusic] Playback blocked:", err.message);
+    });
+
+    fadeVolume(0, VOLUME, 800);
+    playing = true;
+  }
+
+  // ── Stop menu music ──────────────────────────────────────────────────────────
+  function stop() {
+    if (!el || !playing) return;
+    playing = false;
+
+    fadeVolume(el.volume, 0, FADE_MS, () => {
+      el.pause();
+      el.currentTime = 0;
+    });
+  }
+
+  // ── Wire up after the page loads ─────────────────────────────────────────────
+  window.addEventListener("load", () => {
+
+    // FIX: Hook directly onto the buttons instead of wrapping UI.showGame.
+    // UI.render() calls showGame() as a local reference — wrapping window.UI.showGame
+    // has no effect because it's never called through the public object.
+    const newGameButton = document.getElementById("newGameButton");
+    const continueButton = document.getElementById("continueButton");
+
+    if (newGameButton) newGameButton.addEventListener("click", stop);
+    if (continueButton) continueButton.addEventListener("click", stop);
+
+    // Also stop when a save slot is loaded (clicking "Load" inside the save dialog)
+    // The save dialog is rendered dynamically so we use event delegation.
+    const saveDialog = document.getElementById("saveDialog");
+    if (saveDialog) {
+      saveDialog.addEventListener("click", e => {
+        if (e.target.tagName === "BUTTON" && e.target.textContent.trim() === "Load") {
+          stop();
+        }
+      });
+    }
+
+    // Still wrap showTitle so music resumes when the player returns to the menu
     const originalShowTitle = UI.showTitle.bind(UI);
     UI.showTitle = function (...args) {
       originalShowTitle(...args);
       play();
     };
 
-    // Wrap showGame: stop menu music whenever the game screen appears
-    const originalShowGame = UI.showGame.bind(UI);
-    UI.showGame = function (...args) {
-      originalShowGame(...args);
-      stop();
-    };
+    // Mute button — pause/resume menu music alongside the game audio
+    const muteButton = document.getElementById("muteButton");
+    if (muteButton) {
+      muteButton.addEventListener("click", () => {
+        if (AudioEngine.isMuted()) {
+          if (el) el.pause();
+        } else {
+          const titleScreen = document.getElementById("titleScreen");
+          const onTitle = titleScreen && !titleScreen.classList.contains("hidden");
+          if (onTitle) play();
+        }
+      });
+    }
 
-    // The title screen is already visible on first load — start music now.
-    // We need a user gesture first on most browsers, so we listen for the
-    // first click anywhere on the title screen.
+    // Start music on first click (browser autoplay policy requires a gesture)
     const titleScreen = document.getElementById("titleScreen");
     if (titleScreen) {
       titleScreen.addEventListener("click", () => play(), { once: true });
     }
-  });
-
-  // Also respect the mute button — stop/resume menu music accordingly
-  window.addEventListener("load", () => {
-    const muteButton = document.getElementById("muteButton");
-    if (!muteButton) return;
-
-    muteButton.addEventListener("click", () => {
-      // AudioEngine.toggleMute() has already run by now (it's registered first)
-      if (AudioEngine.isMuted()) {
-        if (el) { el.pause(); }
-      } else {
-        const titleScreen = document.getElementById("titleScreen");
-        const onTitle = titleScreen && !titleScreen.classList.contains("hidden");
-        if (onTitle) play();
-      }
-    });
   });
 
   return { play, stop };
