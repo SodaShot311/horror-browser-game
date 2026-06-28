@@ -37,7 +37,7 @@ window.AudioConfig = {
   // Add entries here to replace a synth profile with a real file.
   // Remove or comment out an entry to revert that sound to the oscillator.
   files: {
-     rain:       "assets/audio/ambience/rain.mp3",
+    rain:       "assets/audio/ambience/rain.mp3",
     // wind:       "assets/audio/ambience/wind.mp3",
     // buzz:       "assets/audio/ambience/buzz.mp3",
     // dragging:   "assets/audio/ambience/dragging.mp3",
@@ -46,7 +46,7 @@ window.AudioConfig = {
     // ending:     "assets/audio/music/ending.mp3",
     //leavingWork:       "assets/audio/ambience/leaving-work.mp3",
     friendCall:        "assets/audio/ambience/friend-call.mp3",
-    //friendCallAgain:   "assets/audio/ambience/friend-call-again.mp3",
+    friendCallAgain:   "assets/audio/ambience/friend-call-again.mp3",
     //taxiCancelled:     "assets/audio/ambience/taxi-cancelled.mp3",
     //streetlights:      "assets/audio/ambience/streetlights.mp3",
     //alley:             "assets/audio/ambience/alley.mp3",

@@ -30,7 +30,7 @@ window.AssetConfig = {
   scenes: {
     leavingWork:       { image: "assets/images/docking bay.png",        ambience: "rain",                        overlays: ["fog", "crt"] },
     friendCall:        { image: "assets/images/phone call.png",         ambience: "friendCall",                        overlays: ["crt"] },
-    friendCallAgain:   { image: "assets/images/phone call.png",         ambience: "friend-call",                    overlays: ["crt"] },
+    friendCallAgain:   { image: "assets/images/phone call.png",         ambience: "friendCallAgain",                    overlays: ["crt"] },
     taxiCancelled:     { image: "assets/images/docking bay.png",        ambience: "rain",                        overlays: ["fog", "crt"] },
     streetlights:      { image: "assets/images/street lights.png",      ambience: "rain",                    overlays: ["fog", "rain", "crt"] },
     alley:             { gif:   "assets/images/alley.png",              ambience: "rain",                   sfx: [{ id: "drag-metal", delay: 250, volume: 0.35 }], overlays: ["fog", "crt"] },
