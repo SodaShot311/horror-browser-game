@@ -45,7 +45,6 @@ window.AudioConfig = {
     convenienceStore:  "assets/audio/ambience/convenience-store.mp3",
     storeCharm:        "assets/audio/ambience/store-charm.mp3",
     //mainRoad:          "assets/audio/ambience/main-road.mp3",
-    //park:              "assets/audio/ambience/park.mp3",
     lobby:             "assets/audio/ambience/lobby.mp3",
     stairs:            "assets/audio/ambience/stairs.mp3",
     elevator:          "assets/audio/ambience/elevator.mp3",
