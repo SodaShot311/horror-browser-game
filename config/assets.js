@@ -40,7 +40,7 @@ window.AssetConfig = {
     storeCharm:        { image: "assets/images/convenient store.png",   ambience: "storeCharm",                        overlays: ["crt"] },
     storeBattery:      { image: "assets/images/convenient store.png",   ambience: "storeCharm",                   overlays: ["crt"] },
     storeGhost:        { image: "assets/images/convenient store.png",   ambience: "storeCharm",                   overlays: ["crt"] },
-    mainRoad:          { image: "assets/images/lone road.png",          ambience: "rain",                        overlays: ["fog", "crt"] },
+    mainRoad:          { image: "assets/images/lone road.png",          ambience: "mainRoad",                        overlays: ["fog", "crt"] },
     park:              { image: "assets/images/park path.png",          ambience: "rain",                   overlays: ["fog", "crt"] },
     waiting:           { image: "assets/images/lone road.png",          ambience: "rain",                   overlays: ["fog", "crt"] },
     apartmentDistrict: { image: "assets/images/apartment district.png", ambience: "rain",                        overlays: ["fog", "crt"] },
