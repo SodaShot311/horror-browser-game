@@ -200,7 +200,9 @@
     endingInProgress = true;
     Save.unlockEnding(scene.ending);
     Save.clear();
-    AudioEngine.fadeOut(1600).then(() => AudioEngine.playEndingTone());
+    AudioEngine.fadeOut(1600).then(() => {
+      AudioEngine.playScene(scene.id, scene.effects?.sound);
+    });
     UI.runEndingSequence(scene, state, resetAfterEnding);
   }
 
