@@ -56,7 +56,7 @@ window.AudioConfig = {
   // ── Oscillator fallback profiles ─────────────────────────────────────────────
   // These are used for any profile name NOT listed in `files` above.
   // You can keep them all, or delete the ones you've replaced with real files.
-  /*profiles: {
+  profiles: {
     rain:       { freq: 160, type: "sawtooth",  gain: 0.025 },
     wind:       { freq: 90,  type: "sine",      gain: 0.03  },
     dragging:   { freq: 45,  type: "square",    gain: 0.025, pulse: true },
@@ -70,5 +70,5 @@ window.AudioConfig = {
     masterVolume: 1,
     musicVolume:  0.75,
     sfxVolume:    0.85,
-  },*/
+  },
 };

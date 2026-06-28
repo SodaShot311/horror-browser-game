@@ -54,7 +54,7 @@ window.AssetConfig = {
     hide:              { image: "assets/images/apartment lobby.png",    ambience: "lobby",                    overlays: ["crt"] },
     peephole:          { image: "assets/images/peephole.png",           ambience: "stairs",                   overlays: ["crt"] },
     endingCheck:       { image: "assets/images/peephole.png",           ambience: "endingCheck",                   overlays: ["crt"] },
-    goodEnding:        { image: "assets/images/good end.png",           music: "rain",                         overlays: ["fog"] },
+    goodEnding:        { image: "assets/images/good end.png",           music: "ending",                         overlays: ["fog"] },
     badEnding:         { image: "assets/images/bad end.png", ambience: "dragging", music: "badEnding", overlays: ["fog", "crt"] }
 
     // ── EXAMPLES — delete these or adapt them ──────────────────────────────────
