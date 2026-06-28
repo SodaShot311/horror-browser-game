@@ -1,27 +1,13 @@
-// audio.js — supports shared sounds, array ambience, and mixed file layers
-//
-// PUBLIC API (fully backwards compatible):
-//   AudioEngine.play(name)           — play a single named sound
-//   AudioEngine.playMany(names)      — play multiple named sounds simultaneously
-//   AudioEngine.playScene(sceneId, fallbackSound)
-//   AudioEngine.stop()
-//   AudioEngine.fadeOut(duration)
-//   AudioEngine.playEndingTone()
-//   AudioEngine.toggleMute()
-//   AudioEngine.applySettings(settings)
-//   AudioEngine.isMuted()
-
+// audio.js
 window.AudioEngine = (() => {
 
   // ─── State ───────────────────────────────────────────────────────────────────
   let ctx;
-  let muted   = false;
-  let volumes = { ...(window.AudioConfig?.defaults || {}) };
-
-  // Active oscillator tracks (array so multiple can run together)
-  let oscTracks  = [];
-  // Active file tracks (array for layering)
-  let fileTracks = [];
+  let muted        = false;
+  let current      = null;   // active oscillator track
+  let fileTracks   = [];     // active file-based tracks
+  let currentScene = null;   // scene id that is currently playing
+  let volumes      = { ...(window.AudioConfig?.defaults || {}) };
 
   // ─── Web Audio context ───────────────────────────────────────────────────────
   function ensureCtx() {
@@ -29,80 +15,74 @@ window.AudioEngine = (() => {
     if (ctx.state === "suspended") ctx.resume();
   }
 
-  // ─── Profile / file resolution ───────────────────────────────────────────────
+  // ─── Profile / file helpers ──────────────────────────────────────────────────
   function getProfile(name) {
     return (window.AudioConfig?.profiles || {})[name] || null;
   }
 
-  // Returns { layers: [{src, volume}] } or null
   function getFileConfig(name) {
     const files = window.AudioConfig?.files || {};
     const entry = files[name];
     if (!entry) return null;
     if (entry.layers) return entry;
     if (Array.isArray(entry)) {
-      const audio = new Audio();
+      const a = new Audio();
       for (const path of entry) {
         const ext  = path.split(".").pop().toLowerCase();
         const mime = { mp3: "audio/mpeg", ogg: "audio/ogg", wav: "audio/wav", flac: "audio/flac", m4a: "audio/mp4" }[ext] || "";
-        if (!mime || audio.canPlayType(mime) !== "") return { layers: [{ src: path, volume: 1 }] };
+        if (!mime || a.canPlayType(mime) !== "") return { layers: [{ src: path, volume: 1 }] };
       }
       return { layers: [{ src: entry[0], volume: 1 }] };
     }
     return { layers: [{ src: entry, volume: 1 }] };
   }
 
-  // ─── Effective volume ────────────────────────────────────────────────────────
   function effectiveVolume(isMusic) {
     const master = volumes.masterVolume ?? 1;
     const track  = isMusic ? (volumes.musicVolume ?? 0.75) : (volumes.sfxVolume ?? 0.85);
     return master * track;
   }
 
-  // ─── Stop all ────────────────────────────────────────────────────────────────
-  function stopOscs() {
-    oscTracks.forEach(t => {
-      if (t.timer) clearInterval(t.timer);
-      try { t.osc.stop(); } catch (_) {}
-    });
-    oscTracks = [];
+  // ─── Stop ────────────────────────────────────────────────────────────────────
+  function stopOsc() {
+    if (!current) return;
+    if (current.timer) clearInterval(current.timer);
+    try { current.osc.stop(); } catch (_) {}
+    current = null;
   }
 
   function stopFiles() {
-    fileTracks.forEach(t => {
-      try { t.el.pause(); t.el.src = ""; } catch (_) {}
-    });
+    fileTracks.forEach(t => { try { t.el.pause(); t.el.src = ""; } catch (_) {} });
     fileTracks = [];
   }
 
   function stop() {
-    stopOscs();
+    stopOsc();
     stopFiles();
+    currentScene = null;
   }
 
   // ─── Fade out ────────────────────────────────────────────────────────────────
   function fadeOut(duration = 1400) {
-    if (!oscTracks.length && !fileTracks.length) return Promise.resolve();
+    if (!current && !fileTracks.length) return Promise.resolve();
     ensureCtx();
 
-    // Fade oscillators
-    oscTracks.forEach(t => {
-      if (t.timer) clearInterval(t.timer);
+    if (current) {
+      const playing = current;
+      current = null;
+      if (playing.timer) clearInterval(playing.timer);
       const now = ctx.currentTime;
-      t.gain.gain.cancelScheduledValues(now);
-      t.gain.gain.setValueAtTime(t.gain.gain.value, now);
-      t.gain.gain.linearRampToValueAtTime(0.0001, now + duration / 1000);
-      setTimeout(() => { try { t.osc.stop(); } catch (_) {} }, duration);
-    });
-    oscTracks = [];
+      playing.gain.gain.cancelScheduledValues(now);
+      playing.gain.gain.setValueAtTime(playing.gain.gain.value, now);
+      playing.gain.gain.linearRampToValueAtTime(0.0001, now + duration / 1000);
+      setTimeout(() => { try { playing.osc.stop(); } catch (_) {} }, duration);
+    }
 
-    // Fade file layers
     if (fileTracks.length) {
       const playing = fileTracks;
       fileTracks = [];
-      const steps  = 30;
-      const stepMs = duration / steps;
-      let   step   = 0;
+      const steps = 30, stepMs = duration / steps;
+      let step = 0;
       const iv = setInterval(() => {
         step++;
         const ratio = Math.max(0, 1 - step / steps);
@@ -114,10 +94,11 @@ window.AudioEngine = (() => {
       }, stepMs);
     }
 
+    currentScene = null;
     return new Promise(resolve => setTimeout(resolve, duration));
   }
 
-  // ─── Play a single file layer ────────────────────────────────────────────────
+  // ─── Spawn helpers ───────────────────────────────────────────────────────────
   function spawnFileLayer(src, layerVolume, isMusic) {
     const el  = new Audio(src);
     el.loop   = true;
@@ -127,7 +108,6 @@ window.AudioEngine = (() => {
     fileTracks.push({ el, baseVolume: vol });
   }
 
-  // ─── Play a single oscillator ────────────────────────────────────────────────
   function spawnOsc(name, profile) {
     ensureCtx();
     const osc  = ctx.createOscillator();
@@ -149,29 +129,28 @@ window.AudioEngine = (() => {
         gain.gain.linearRampToValueAtTime(0.001,    now + 0.24);
       }, name === "heartbeat" ? 760 : 1200);
     }
-
-    oscTracks.push({ osc, gain, timer });
+    current = { osc, gain, timer };
   }
 
-  // ─── Play one named sound (adds to current layers, does NOT stop others) ─────
-  function playOne(name, isMusic = false) {
+  // ─── Play one named sound (internal — does NOT stop existing tracks) ─────────
+  function playOne(name, isMusic) {
     const fileConfig = getFileConfig(name);
     if (fileConfig) {
-      fileConfig.layers.forEach(layer => spawnFileLayer(layer.src, layer.volume, isMusic));
+      fileConfig.layers.forEach(l => spawnFileLayer(l.src, l.volume, isMusic));
       return;
     }
     const profile = getProfile(name);
     if (profile) spawnOsc(name, profile);
   }
 
-  // ─── Public: play a single sound (replaces whatever is playing) ──────────────
+  // ─── Public: play a single sound ─────────────────────────────────────────────
   function play(name) {
     if (muted || !name) return;
     stop();
     playOne(name, name === "ending");
   }
 
-  // ─── Public: play multiple sounds simultaneously (replaces whatever is playing)
+  // ─── Public: play multiple sounds simultaneously ──────────────────────────────
   function playMany(names) {
     if (muted || !names?.length) return;
     stop();
@@ -179,15 +158,14 @@ window.AudioEngine = (() => {
   }
 
   // ─── Scene helper ────────────────────────────────────────────────────────────
-  // audioFor() now always returns { ambience: [...], music, sfx }
   function playScene(sceneId, fallbackSound) {
     if (muted) return;
     const audio = window.AssetManager?.audioFor(sceneId, fallbackSound)
-                  || { ambience: [fallbackSound || "wind"], music: null };
+                  || { ambience: fallbackSound || "wind", music: null };
 
     stop();
+    currentScene = sceneId;
 
-    // Music takes priority over ambience when both are set
     if (audio.music) {
       playOne(audio.music, true);
     } else {
@@ -197,17 +175,24 @@ window.AudioEngine = (() => {
   }
 
   // ─── Ending tone ─────────────────────────────────────────────────────────────
+  // FIX 1: If a real file is already playing (started by playScene for the ending
+  // scenes), skip the oscillator so it doesn't cut the music off.
   function playEndingTone() {
     if (muted) return;
-    stop();
+
+    // If file tracks are already running (real ending music from playScene), keep them.
+    if (fileTracks.length > 0) return;
+
+    // Otherwise fall back to the oscillator tone (original behaviour).
+    ensureCtx();
+    stopOsc();
 
     const fileConfig = getFileConfig("ending");
     if (fileConfig) {
-      fileConfig.layers.forEach(layer => spawnFileLayer(layer.src, layer.volume, true));
+      fileConfig.layers.forEach(l => spawnFileLayer(l.src, l.volume, true));
       return;
     }
 
-    ensureCtx();
     const profile   = getProfile("ending") || { freq: 110, type: "sine", gain: 0.008 };
     const osc       = ctx.createOscillator();
     const gain      = ctx.createGain();
@@ -216,13 +201,26 @@ window.AudioEngine = (() => {
     gain.gain.value = profile.gain * effectiveVolume(true);
     osc.connect(gain).connect(ctx.destination);
     osc.start();
-    oscTracks.push({ osc, gain, timer: null });
+    current = { osc, gain, timer: null };
   }
 
-  // ─── Mute ────────────────────────────────────────────────────────────────────
+  // ─── Mute / unmute ───────────────────────────────────────────────────────────
+  // FIX 2: When unmuting, replay the scene that was active before mute.
   function toggleMute() {
     muted = !muted;
-    if (muted) stop();
+
+    if (muted) {
+      // Remember which scene was playing so we can restore it
+      const scene = currentScene;
+      stop();
+      currentScene = scene; // restore after stop() clears it
+    } else {
+      // Unmuting — restart the last scene if we know it
+      if (currentScene) {
+        playScene(currentScene);
+      }
+    }
+
     return muted;
   }
 
