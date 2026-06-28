@@ -49,8 +49,8 @@ window.AudioConfig = {
     stairs:            "assets/audio/ambience/stairs.mp3",
     elevator:          "assets/audio/ambience/elevator.mp3",
     endingCheck:       "assets/audio/ambience/ending-check.mp3",
-    //goodEnding:        "assets/audio/music/good-ending.mp3",
-    badEnding: "assets/audio/music/bad-ending.mp3",
+    goodEnding:        "assets/audio/music/good-ending.mp3",
+    badEnding:         "assets/audio/music/bad-ending.mp3",
   },
 
   // ── Oscillator fallback profiles ─────────────────────────────────────────────
