@@ -46,7 +46,7 @@ window.AssetConfig = {
     apartmentDistrict: { image: "assets/images/apartment district.png", ambience: "rain",                        overlays: ["fog", "crt"] },
     figure:            { image: "assets/images/street figure.png",      ambience: "rain",                   overlays: ["fog", "crt"] },
     figureLight:       { image: "assets/images/street figure.png",      ambience: "rain",                        overlays: ["fog", "crt"] },
-    lobby:             { image: "assets/images/apartment lobby.png",    ambience: "rain",                        overlays: ["crt"] },
+    lobby:             { image: "assets/images/apartment lobby.png",    ambience: "lobby",                        overlays: ["crt"] },
     guard:             { image: "assets/images/apartment lobby.png",    ambience: "rain",                   overlays: ["crt"] },
     guardTruth:        { image: "assets/images/apartment lobby.png",    ambience: "rain",                   overlays: ["crt"] },
     stairs:            { image: "assets/images/the stairs.png",         ambience: "rain",                   overlays: ["crt"] },

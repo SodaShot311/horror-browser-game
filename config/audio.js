@@ -62,7 +62,7 @@ window.AudioConfig = {
     //apartmentDistrict: "assets/audio/ambience/apartment-district.mp3",
     //figure:            "assets/audio/ambience/figure.mp3",
     //figureLight:       "assets/audio/ambience/figure-light.mp3",
-    //lobby:             "assets/audio/ambience/lobby.mp3",
+    lobby:             "assets/audio/ambience/lobby.mp3",
     //guard:             "assets/audio/ambience/guard.mp3",
     //guardTruth:        "assets/audio/ambience/guard-truth.mp3",
     //stairs:            "assets/audio/ambience/stairs.mp3",
