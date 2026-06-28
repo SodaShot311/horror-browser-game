@@ -55,7 +55,7 @@ window.AssetConfig = {
     peephole:          { image: "assets/images/peephole.png",           ambience: "stairs",                   overlays: ["crt"] },
     endingCheck:       { image: "assets/images/peephole.png",           ambience: "endingCheck",                   overlays: ["crt"] },
     goodEnding:        { image: "assets/images/good end.png",           music: "rain",                         overlays: ["fog"] },
-    badEnding:         { image: "assets/images/bad end.png",            ambience: "rain",  music: "badEnding",  overlays: ["fog", "crt"] },
+    badEnding:         { image: "assets/images/bad end.png",            ambience: "badEnding",  music: "badEnding",  overlays: ["fog", "crt"] },
 
     // ── EXAMPLES — delete these or adapt them ──────────────────────────────────
 
