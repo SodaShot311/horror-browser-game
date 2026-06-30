@@ -399,10 +399,11 @@ window.SCENES = {
     ],
     credits: [
       "THE LONG WALK HOME",
-      "Created by SodaShot",
-      "Programming",
-      "Story",
-      "Art and Sound",
+      "Created by 陳奇埏",
+      "Programming 陳奇埏, CLaude and Codex",
+      "Story 陳奇埏, ChatGpt and Gemini",
+      "Art and Sound 陳奇埏 and Gemini",
+      "Special thanks to 郭振輝, 高淑芝 and 鄒月雲 for presentating the project.",
       "Thank you for playing."
     ],
     text: [
