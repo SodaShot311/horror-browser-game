@@ -598,58 +598,6 @@ body:not(.animations-enabled) * {
     transition-duration: 1ms !important;
   }
 }
-@media (max-width: 980px) {
-  .shell {
-    width: min(100% - 16px, 980px);
-    padding: 8px 0;
-  }
-
-  .title-screen {
-    min-height: calc(100vh - 16px);
-  }
-
-  .game-screen {
-    min-height: calc(100vh - 16px);
-    grid-template-columns: 1fr;
-  }
-
-  .menu-rail,
-  .media-column,
-  .story-column {
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .menu-rail {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .menu-rail .kicker {
-    grid-column: 1 / -1;
-  }
-
-  .media-column {
-    grid-template-rows: auto minmax(240px, 44vh) auto;
-  }
-
-  .scene-media,
-  .scene-visual {
-    min-height: 240px;
-  }
-
-  .status-panel,
-  .top-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .save-row {
-    grid-template-columns: 82px 1fr;
-  }
-
-  .save-row button {
-    grid-column: 1 / -1;
-  }
-}
 #startOverlay {
     position: fixed;
     inset: 0;
@@ -659,27 +607,36 @@ body:not(.animations-enabled) * {
     justify-content: center;
     align-items: center;
 
-    background: #000;
+    background: black;
     color: white;
 
     z-index: 9999;
 
-    text-align: center;
+    transition: opacity .5s ease;
 }
 
-#startOverlay h1 {
-    font-size: 3rem;
+#startOverlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
 }
 
 #startOverlay p {
     margin-top: 20px;
-    opacity: .8;
-
     animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
-    0% { opacity: .3; }
-    50% { opacity: 1; }
-    100% { opacity: .3; }
+
+    0% {
+        opacity: .3;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: .3;
+    }
+
 }

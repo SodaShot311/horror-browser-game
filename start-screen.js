@@ -4,9 +4,17 @@ window.addEventListener("load", () => {
 
     function begin() {
 
-        overlay.remove();
+        // Hide the overlay
+        overlay.classList.add("fade-out");
 
-        UI.showTitle(Game.hasSave());
+        // Wait for the animation
+        setTimeout(() => {
+            overlay.remove();
+
+            // Show the title menu
+            UI.showTitle(Boolean(Save.load()));
+
+        }, 500);
 
         document.removeEventListener("pointerdown", begin);
         document.removeEventListener("keydown", begin);
