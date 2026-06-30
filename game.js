@@ -311,5 +311,4 @@
 
   state.settings = { ...state.settings, ...Save.loadSettings() };
   mergeSettings();
-  UI.showTitle(Boolean(Save.load()));
 })();

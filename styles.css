@@ -598,7 +598,6 @@ body:not(.animations-enabled) * {
     transition-duration: 1ms !important;
   }
 }
-
 @media (max-width: 980px) {
   .shell {
     width: min(100% - 16px, 980px);
@@ -650,4 +649,37 @@ body:not(.animations-enabled) * {
   .save-row button {
     grid-column: 1 / -1;
   }
+}
+#startOverlay {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    background: #000;
+    color: white;
+
+    z-index: 9999;
+
+    text-align: center;
+}
+
+#startOverlay h1 {
+    font-size: 3rem;
+}
+
+#startOverlay p {
+    margin-top: 20px;
+    opacity: .8;
+
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: .3; }
+    50% { opacity: 1; }
+    100% { opacity: .3; }
 }

@@ -1,5 +1,6 @@
 window.UI = (() => {
   const titleScreen = document.getElementById("titleScreen");
+  titleScreen.classList.add("hidden");
   const gameScreen = document.getElementById("gameScreen");
   const sceneTitle = document.getElementById("sceneTitle");
   const chapterLabel = document.getElementById("chapterLabel");
