@@ -1,9 +1,15 @@
 // menu-music.js
-// Add this AFTER audio.js in index.html:
+// Add this AFTER ui.js (and AFTER audio.js) in index.html:
 //   <script src="audio.js"></script>
-//   <script src="menu-music.js"></script>
 //   <script src="ui.js"></script>
+//   <script src="menu-music.js"></script>
 //   <script src="game.js"></script>
+//
+// Menu music is driven entirely by UI's "title" / "game" screen events
+// (UI.onScreen), not by wiring listeners onto individual buttons or the
+// title screen container. This removes the bubbling-click race that let
+// "New Game" / "Continue" start the music, and means any future way of
+// leaving the title screen automatically stops it for free.
 
 window.MenuMusic = (() => {
   // ── Config ──────────────────────────────────────────────────────────────────
@@ -12,26 +18,38 @@ window.MenuMusic = (() => {
   const FADE_MS   = 1200;
   // ────────────────────────────────────────────────────────────────────────────
 
-  let el      = null;
-  let playing = false;
-  let fadeIv  = null;
+  let el          = null;
+  let playing     = false;
+  let fadeIv      = null;
+  let unlocked    = false;   // has a user gesture satisfied autoplay policy?
+  let onTitle     = false;   // are we currently on the title screen?
+  let unlockCleanup = null;  // removes the unlock listeners once used
+
+  function getEl() {
+    if (!el) {
+      el = new Audio(MUSIC_SRC);
+      el.loop = true;
+      el.volume = 0;
+    }
+    return el;
+  }
 
   // ── Volume ramp ─────────────────────────────────────────────────────────────
   function fadeVolume(from, to, durationMs, onDone) {
     if (fadeIv) clearInterval(fadeIv);
-    if (!el) return;
+    const audioEl = getEl();
     const steps  = 30;
     const stepMs = durationMs / steps;
     let   step   = 0;
-    el.volume    = Math.min(1, Math.max(0, from));
+    audioEl.volume = Math.min(1, Math.max(0, from));
 
     fadeIv = setInterval(() => {
       step++;
-      el.volume = Math.min(1, Math.max(0, from + (to - from) * (step / steps)));
+      audioEl.volume = Math.min(1, Math.max(0, from + (to - from) * (step / steps)));
       if (step >= steps) {
         clearInterval(fadeIv);
-        fadeIv    = null;
-        el.volume = Math.min(1, Math.max(0, to));
+        fadeIv = null;
+        audioEl.volume = Math.min(1, Math.max(0, to));
         if (onDone) onDone();
       }
     }, stepMs);
@@ -39,15 +57,13 @@ window.MenuMusic = (() => {
 
   // ── Play menu music ──────────────────────────────────────────────────────────
   function play() {
-    if (playing || AudioEngine.isMuted()) return;
+    // Re-check current conditions every time, rather than trusting whoever
+    // called us — this is what prevents stale/late calls from starting music
+    // once the player has left the title screen.
+    if (playing || !onTitle || !unlocked || AudioEngine.isMuted()) return;
 
-    if (!el) {
-      el       = new Audio(MUSIC_SRC);
-      el.loop  = true;
-      el.volume = 0;
-    }
-
-    el.play().catch(err => {
+    const audioEl = getEl();
+    audioEl.play().catch(err => {
       console.warn("[MenuMusic] Playback blocked:", err.message);
     });
 
@@ -57,7 +73,7 @@ window.MenuMusic = (() => {
 
   // ── Stop menu music ──────────────────────────────────────────────────────────
   function stop() {
-    if (!el || !playing) return;
+    if (!playing) return;
     playing = false;
 
     fadeVolume(el.volume, 0, FADE_MS, () => {
@@ -66,54 +82,52 @@ window.MenuMusic = (() => {
     });
   }
 
-  // ── Wire up after the page loads ─────────────────────────────────────────────
-  window.addEventListener("load", () => {
+  // ── Unlock on first valid user interaction ────────────────────────────────────
+  // Uses the capture phase on `document` (not `titleScreen`) so it always fires
+  // exactly once, on the very first interaction anywhere on the page, and never
+  // depends on bubbling order relative to button handlers.
+  function setupUnlock() {
+    if (unlocked) return;
 
-    // FIX: Hook directly onto the buttons instead of wrapping UI.showGame.
-    // UI.render() calls showGame() as a local reference — wrapping window.UI.showGame
-    // has no effect because it's never called through the public object.
-    const newGameButton = document.getElementById("newGameButton");
-    const continueButton = document.getElementById("continueButton");
-
-    if (newGameButton) newGameButton.addEventListener("click", stop);
-    if (continueButton) continueButton.addEventListener("click", stop);
-
-    // Also stop when a save slot is loaded (clicking "Load" inside the save dialog)
-    // The save dialog is rendered dynamically so we use event delegation.
-    const saveDialog = document.getElementById("saveDialog");
-    if (saveDialog) {
-      saveDialog.addEventListener("click", e => {
-        if (e.target.tagName === "BUTTON" && e.target.textContent.trim() === "Load") {
-          stop();
-        }
-      });
-    }
-
-    // Still wrap showTitle so music resumes when the player returns to the menu
-    const originalShowTitle = UI.showTitle.bind(UI);
-    UI.showTitle = function (...args) {
-      originalShowTitle(...args);
-      play();
+    const handler = () => {
+      if (unlocked) return;
+      unlocked = true;
+      if (unlockCleanup) unlockCleanup();
+      play(); // no-op unless we're still on the title screen
     };
 
-    // Mute button — pause/resume menu music alongside the game audio
+    const events = ["pointerdown", "keydown"];
+    events.forEach(evt => document.addEventListener(evt, handler, { capture: true, once: true }));
+    unlockCleanup = () => {
+      events.forEach(evt => document.removeEventListener(evt, handler, { capture: true }));
+      unlockCleanup = null;
+    };
+  }
+
+  // ── Wire up after the page loads ─────────────────────────────────────────────
+  window.addEventListener("load", () => {
+    setupUnlock();
+
+    // Single source of truth: UI's own screen-change events.
+    UI.onScreen("title", () => {
+      onTitle = true;
+      play(); // no-op until a user gesture has unlocked audio
+    });
+    UI.onScreen("game", () => {
+      onTitle = false;
+      stop();
+    });
+
+    // Mute button — pause/resume menu music alongside the game audio.
     const muteButton = document.getElementById("muteButton");
     if (muteButton) {
       muteButton.addEventListener("click", () => {
         if (AudioEngine.isMuted()) {
           if (el) el.pause();
-        } else {
-          const titleScreen = document.getElementById("titleScreen");
-          const onTitle = titleScreen && !titleScreen.classList.contains("hidden");
-          if (onTitle) play();
+        } else if (onTitle) {
+          play();
         }
       });
-    }
-
-    // Start music on first click (browser autoplay policy requires a gesture)
-    const titleScreen = document.getElementById("titleScreen");
-    if (titleScreen) {
-      titleScreen.addEventListener("click", () => play(), { once: true });
     }
   });
 

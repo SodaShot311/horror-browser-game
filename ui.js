@@ -24,6 +24,18 @@ window.UI = (() => {
   let onComplete = null;
   let endingTimer = null;
 
+  // Screen-change hooks: modules (e.g. MenuMusic) can subscribe here instead of
+  // monkey-patching UI methods or wiring up their own button listeners.
+  const screenListeners = { title: [], game: [] };
+  function onScreen(screen, fn) {
+    if (screenListeners[screen]) screenListeners[screen].push(fn);
+  }
+  function emitScreen(screen) {
+    (screenListeners[screen] || []).forEach(fn => {
+      try { fn(); } catch (err) { console.error(`[UI] screen listener (${screen}) failed:`, err); }
+    });
+  }
+
   function clearEndingTimer() {
     if (!endingTimer) return;
     clearTimeout(endingTimer);
@@ -42,6 +54,7 @@ window.UI = (() => {
     titleScreen.classList.remove("hidden");
     gameScreen.classList.add("hidden");
     continueButton.disabled = !hasSave;
+    emitScreen("title");
   }
 
   function showGame() {
@@ -49,6 +62,7 @@ window.UI = (() => {
     endingSequence.classList.add("hidden");
     titleScreen.classList.add("hidden");
     gameScreen.classList.remove("hidden");
+    emitScreen("game");
   }
 
   function renderMedia(scene) {
@@ -212,6 +226,7 @@ window.UI = (() => {
     gameScreen.classList.add("hidden");
     endingSequence.classList.remove("hidden");
     endingSequence.classList.remove("show-credits");
+    emitScreen("game"); // leaving the title screen — treat like entering gameplay
     endingLine.className = "ending-line";
     endingLine.textContent = "";
     creditsRoll.classList.add("hidden");
@@ -248,7 +263,8 @@ window.UI = (() => {
     finishTypewriter,
     renderEndings,
     renderSaveSlots,
-    runEndingSequence
+    runEndingSequence,
+    onScreen
   };
 })();
 
